@@ -11,9 +11,9 @@ const path = require('path');
 const keypair = os.homedir() + '/.config/solana/id.json';
 
 //cluster can be became 'devnet' | 'testnet' | 'mainnet-beta'
-// const env = 'devnet';
-// const rpcUrl = web3.clusterApiUrl(env);
-const rpcUrl = 'http://127.0.0.1:8899'
+const env = 'devnet';
+const rpcUrl = web3.clusterApiUrl(env);
+// const rpcUrl = 'http://127.0.0.1:8899'
 const connection = new web3.Connection(rpcUrl);
 
 const rawdata = fs.readFileSync(keypair);
