@@ -6,7 +6,8 @@
     "license": "MIT",
     "author": "",
     "scripts": {
-        "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/*.ts"
+        "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/*.ts",
+        "create-funder": "ts-mocha -p ./tsconfig.json -t 1000000 pool/*.ts"
     },
     "dependencies": {
         "@project-serum/anchor": "^0.18.2",

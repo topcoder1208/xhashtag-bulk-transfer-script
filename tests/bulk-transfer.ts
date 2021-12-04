@@ -11,9 +11,9 @@ const path = require('path');
 const keypair = path.resolve(__dirname, '../json/id.json');
 
 //cluster can be became 'devnet' | 'testnet' | 'mainnet-beta'
-// const env = 'devnet';
-// const rpcUrl = web3.clusterApiUrl(env);
-const rpcUrl = 'http://127.0.0.1:8899'
+const env = 'devnet';
+const rpcUrl = web3.clusterApiUrl(env);
+// const rpcUrl = 'http://127.0.0.1:8899'
 const connection = new web3.Connection(rpcUrl);
 
 const rawdata = fs.readFileSync(keypair);
@@ -34,76 +34,6 @@ let vaultPubkey;
 let poolPubkey = poolKeypair.publicKey;
 let rewardsPubkey;
 //////////////////////////////////
-
-const initialize = async () => {
-    const [
-        _poolSigner,
-        _nonce,
-    ] = await web3.PublicKey.findProgramAddress(
-        [poolPubkey.toBuffer()],
-        program.programId
-    );
-    
-    const tx = await program.rpc.initialize(
-      _nonce, {
-      accounts: {
-        authority: provider.wallet.publicKey,
-        pool: poolPubkey,
-        poolSigner: _poolSigner,
-        owner: provider.wallet.publicKey,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        systemProgram: web3.SystemProgram.programId,
-      },
-      signers: [poolKeypair, ],
-      instructions: [
-          await program.account.pool.createInstruction(poolKeypair, ),
-      ],
-    });
-    console.log("Your transaction signature", tx);
-}
-
-const createFunder = async () => {
-    const [
-        _poolSigner,
-        _nonce,
-    ] = await web3.PublicKey.findProgramAddress(
-        [poolPubkey.toBuffer()],
-        program.programId
-    );
-    const [
-        _vaultPubkey,
-        _vaultNonce,
-    ] = await web3.PublicKey.findProgramAddress(
-        [provider.wallet.publicKey.toBuffer(), poolPubkey.toBuffer()],
-        program.programId
-    );
-
-    const [
-        _rewardsPubkey,
-        _rewardsNonce,
-    ] = await web3.PublicKey.findProgramAddress(
-        [poolPubkey.toBuffer(), Buffer.from('rewards')],
-        program.programId
-    );
-
-    rewardsPubkey = _rewardsPubkey;
-    vaultPubkey = _vaultPubkey;
-
-    const tx = await program.rpc.createFunder(
-      _vaultNonce,
-      _rewardsNonce, {
-      accounts: {
-        authority: provider.wallet.publicKey,
-        pool: poolPubkey,
-        vault: vaultPubkey,
-        rewards: rewardsPubkey,
-        poolSigner: _poolSigner,
-        owner: provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      }
-    });
-}
-
 const deposit = async (tokenPubkey, amounts, adminWallet) => {
   if(typeof tokenPubkey == 'string') {
     tokenPubkey = new web3.PublicKey(tokenPubkey);
@@ -121,7 +51,7 @@ const deposit = async (tokenPubkey, amounts, adminWallet) => {
         [poolPubkey.toBuffer()],
         program.programId
     );
-console.log(vaultPubkey.toBase58())
+
   const vaultObject = await program.account.vault.fetch(vaultPubkey);
   let tokenPoolVault;
   vaultObject.tokenMints.find((mint, index) => {
@@ -218,7 +148,7 @@ const storeSingleRewards = async (address, token, amount) => {
       accounts: {
         authority: provider.wallet.publicKey,
         rewards: _rewardsPubkey,
-        pool: poolKeypair.publicKey,
+        pool: poolPubkey,
         poolSigner: _poolSigner,
       }
     });
@@ -288,7 +218,7 @@ const storeMultiRewards = async (addresses, tokens, amounts) => {
       accounts: {
         authority: provider.wallet.publicKey,
         rewards: _rewardsPubkey,
-        pool: poolKeypair.publicKey,
+        pool: poolPubkey,
         poolSigner: _poolSigner,
       }
     });
@@ -361,7 +291,7 @@ const claim = async (address, token, amount) => {
       console.log("Admin did not deposit this token to pool");
       return;
     }
-console.log(rewardsObject);
+
     for(var i = 0;i < rewardsObject.addresses.length;i ++) {
       const _address = rewardsObject.addresses[i];
       if(_address.toBase58() == address.toBase58()) {
@@ -428,20 +358,8 @@ async function getProvider() {
     return provider;
 }
 
-describe('bulk-transfer', () => {
+describe('bulk-transfer', async () => {
   it('start', async () => {
-    try {
-      await initialize();
-    } catch (e) {
-
-    }
-
-    try {
-      await createFunder();
-    } catch (e) {
-
-    }
-
     const [
         _vaultPubkey,
         _vaultNonce,
@@ -460,22 +378,32 @@ describe('bulk-transfer', () => {
 
     vaultPubkey = _vaultPubkey;
     rewardsPubkey = _rewardsPubkey;
-
-    const token1 = 'CFNJDXgGiTXJVufPvMfdabuhGv6fzQokk7epAeYrAzxk';
-    const token2 = 'GF445MCv9FqKVeZzdTqwyPPHVnktzFNS5BZTyAYwbJDK';
+    
+    const token1 = 'HSxwKQwxqafTSCvFRyEmi8S61PXLHBf3d7xWjkZ3hScP';
+    const token2 = '6FzDRNrhR33hmBHf5kwtUr9MxvPFc9dqwEqyzX2CEad1';
 
     await deposit(token1, 100, walletKeyPair.publicKey)
 
     const address1 = '9RnnWGWdjJbu7yCo8hstY71qnwu6TVoCKBGLkJnP3yc2';
     const address2 = 'DGfd7WtGFNSfc7ay1Ydo8mXdgEFecEhvuHovtK1HyYmv';
+
     await storeSingleRewards(address1, token1, 50);
 
     await storeMultiRewards([address1, address2], [token1, token1], [10, 50])
 
     await setCanClaim(address1, true)
+    await setCanClaim(address2, true)
 
     await claim(address1, token1, 20)
     await claim(address2, token1, 20)
   })
 
 });
+
+async function wait(seconds) {
+  while(seconds > 0) {
+    console.log("countdown " + seconds--);
+    await new Promise(a=>setTimeout(a, 1000));
+  }
+  console.log("wait over");
+}

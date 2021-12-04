@@ -4,12 +4,25 @@
 
 `yarn`
 
+### Generating Pool Keypair
+
+`solana-keygen new --outfile json/pool.json --force`
+
+##### Note1: Please make sure for admin wallet keypair path in `pool/index.ts` and `test/bulk-transfer.ts` line 11.
+##### Note2: Admin wallet has to contain some sol and test token amounts.
+
+### Creating Funder
+
+`yarn create-funder`
+
 ### Testing
 
-`yarn test`
 
 #### NOTE
 
-Please check line 434~448 in `./tests/bulk-transfer.ts`. You will need to change this line info and you can know how to use the functions form it.
+Replace token addresses in `test/bulk-transfer.ts` line 382.
+Replace wallet addresses in `test/bulk-transfer.ts` line 388.
+
+`yarn test`
 
 Thank you. :)
