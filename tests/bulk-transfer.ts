@@ -384,8 +384,8 @@ describe('bulk-transfer', async () => {
 
     await deposit(token1, 100, walletKeyPair.publicKey)
 
-    const address1 = '9RnnWGWdjJbu7yCo8hstY71qnwu6TVoCKBGLkJnP3yc2';
-    const address2 = 'DGfd7WtGFNSfc7ay1Ydo8mXdgEFecEhvuHovtK1HyYmv';
+    const address1 = '7MqfoC1t2M4j8c8Ui11tbyE6SBG9qg79LfCG5tsrL3gc';
+    const address2 = '4dLk6ossVjNhiYqXYLQMiHvGfViDrAy9kF7zb978yo6J';
 
     await storeSingleRewards(address1, token1, 50);
 

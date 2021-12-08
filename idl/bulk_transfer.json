@@ -275,7 +275,7 @@
         },
         {
           "name": "pool",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
