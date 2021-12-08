@@ -25,4 +25,28 @@ Replace wallet addresses in `test/bulk-transfer.ts` line 388.
 
 `yarn test`
 
-Thank you. :)
+
+## Usage
+
+### -- Getting Admin Address
+```
+    let poolObject = await program.account.vault.fetch(poolPubkey);
+    console.log(poolObject.owner);
+```
+
+### -- Getting stored rewards
+```
+    const [
+        _rewardsPubkey,
+        _rewardsNonce,
+    ] = await anchor.web3.PublicKey.findProgramAddress(
+        [poolPubkey, Buffer.from('rewards')],
+        program.programId
+    );
+    
+    const rewardsPubkey = _rewardsPubkey;
+    
+    let rewardsObject = await program.account.rewards.fetch(rewardsPubkey);
+    console.log(rewardsObject.rewards)
+    console.log(rewardsObject.addresses)
+ ```
