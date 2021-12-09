@@ -34,6 +34,19 @@ Replace wallet addresses in `test/bulk-transfer.ts` line 388.
     console.log(poolObject.owner);
 ```
 
+### -- Getting Deposited Balance
+```
+const [
+        _vaultPubkey,
+        _vaultNonce,
+    ] = await anchor.web3.PublicKey.findProgramAddress(
+        [poolObject.owner.toBuffer(), poolPubkey.toBuffer()],
+        program.programId
+    );
+let vaultObject = await program.account.vault.fetch(_vaultPubkey);
+console.log(await provider.connection.getTokenAccountBalance(vaultObject.tokenVaults[0])).value.uiAmount)
+```
+
 ### -- Getting stored rewards
 ```
     const [
