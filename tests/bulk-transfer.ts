@@ -322,7 +322,7 @@ const claim = async (address, token, amount) => {
     const tx = await program.rpc.claim(
       _nonce,
       address, 
-      new anchor.BN(amount * decimals), {
+      new anchor.BN(amount * (10 ** decimals)), {
       accounts: {
         pool: poolPubkey,
         poolSigner: _poolSigner,
